@@ -1,0 +1,15 @@
+{
+  "name": "cirru-cli",
+  "version": "0.0.0",
+  "description": "a command line tool of Cirru",
+  "main": "lib/parser.js",
+  "scripts": {
+    "test": "echo 'no test'"
+  },
+  "repository": "",
+  "keywords": [
+    "cirru"
+  ],
+  "author": "jiyinyiyong",
+  "license": "MIT"
+}
