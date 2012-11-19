@@ -64,7 +64,6 @@ escapeFunction = function(key, value){
   }
 };
 renderOutput = function(item){
-  console.log('item:', typeof item);
   if (typeof item === 'function') {
     return item.toString(2);
   } else {

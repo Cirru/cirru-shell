@@ -45,7 +45,7 @@ escape-function = (key, value) ->
   else value
 
 render-output = (item) ->
-  console.log 'item:', typeof item
+  # console.log 'item:', typeof item
   if (typeof item) is \function
     item.to-string 2
   else
