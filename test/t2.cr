@@ -1,3 +1,3 @@
 
 print load\ t2.cr
-require t.cr
+require dir/t3.cr
