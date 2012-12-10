@@ -72,14 +72,15 @@ print = function(item) {
 load_node = function(filename, parent) {
   var ast, load, load_require, run, self;
   self = {};
+  all_libs[filename] = self;
   load_require = function(name) {
     var child, child_file;
-    if (all_libs[name] == null) {
-      child_file = join(dirname(filename), name);
+    child_file = join(dirname(filename), name);
+    if (all_libs[child_file] == null) {
       child = load_node(child_file, self);
-      all_libs[name] = child.scope;
+      all_libs[child_file] = child.scope;
     }
-    return all_libs[name];
+    return all_libs[child_file];
   };
   ast = parse(filename);
   self.update = function() {
@@ -139,13 +140,14 @@ load_node = function(filename, parent) {
     }
   };
   watch(filename, function() {
+    log("\nreloading......\n");
     load();
     if (parent != null) {
       return parent.update();
     }
   });
   load();
-  return all_libs[filename] = self;
+  return self.scope;
 };
 
 exports.run = function() {

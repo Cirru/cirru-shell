@@ -39,14 +39,16 @@ print = (item) ->
 load_node = (filename, parent) ->
 
   self = {}
+  all_libs[filename] = self
 
   # called by every file to maintain global libs
   load_require = (name) ->
-    unless all_libs[name]?
-      child_file = join (dirname filename), name
+    child_file = join (dirname filename), name
+    # log "requiring:", child_file, all_libs
+    unless all_libs[child_file]?
       child = load_node child_file, self
-      all_libs[name] = child.scope
-    all_libs[name]
+      all_libs[child_file] = child.scope
+    all_libs[child_file]
 
   ast = parse filename
 
@@ -100,11 +102,13 @@ load_node = (filename, parent) ->
     else err "not an available head: #{head}"
 
   watch filename, ->
+    # log "\n", all_libs
+    log "\nreloading......\n"
     load()
     parent.update() if parent?
 
   load()
-  all_libs[filename] = self
+  self.scope
 
 exports.run = ->
   filename = process.argv[2]
