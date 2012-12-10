@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../js/index.js').run()
+require('../src/index.js').run();
