@@ -24,6 +24,8 @@ make_list = (list) ->
       ret.push item.c
   ret
 
+init = require("./init").init
+
 parse = (name) -> make_list cirru_parse read_file name
 
 # functions about handling local environments
@@ -35,54 +37,41 @@ pwd = process.env.PWD
 print = (item) ->
   log item
   print
+concat = (arr1, arr2) -> arr1.concat arr2
 
 # store all modules, maintained by load_require
 all_libs = {}
 
-run = (exp, scope) ->
+read = (exp, scope) ->
   [head, body...] = exp
   # log exp
 
-  if is_arr head
-    head = run (head), scope
-  # log "head is:", head
-  if is_str head
-    if scope[head]?
-      ret = init = scope[head]
-      if body[0]?
-        # log "init", init
-        ret = init body.shift()
-        # log "then body:", body
-        if body[0]?
-          ret = run [ret].concat(body), scope
-      # log "ret :", ret
-      return ret
+  if is_arr head then head = read head, scope
+  else if is_str head
+    if scope[head]? then head = scope[head]
     else err "head #{head} not found"
-  else if is_func head
-    ret = init = head
-    while body[0]?
-      head = init body.shift()
-      ret = run [head].concat(body), scope
-    return ret
-  else if is_obj head
-    ret = init = head
-    while body[0]?
-      head = init[body.shift()]
-      ret = run [head].concat(body), scope
-    return ret
 
-  else err "not an available head: #{head}"
+  ret = head
+  if body[0]?
+    arg = body.shift()
+    ret =
+      if is_func head then head arg
+      else if is_obj head then head[arg]
+      else err "strange head:", head
+    if body[0]?
+      ret = read (concat [ret], body), scope
+  # log "ret :", ret
+  return ret
 
 # a node refers to a file, folded as a tree
 load_node = (filename, parent) ->
   # log "\n----load_node::", filename
 
   all_libs[filename] = self = {}
-
   ast = parse filename
 
   self.update = ->
-    ast.forEach (line) -> run line, self.scope
+    ast.forEach (line) -> read line, self.scope
     # log "parent: ", parent
     parent.update() if parent?
 
@@ -95,6 +84,7 @@ load_node = (filename, parent) ->
   self.scope =
     filename: filename
     print: print
+    init: init
 
   # called by every file to maintain global libs
   self.scope.require = load_require = (name) ->
@@ -107,7 +97,8 @@ load_node = (filename, parent) ->
 
   do load = ->
     ast = parse filename
-    ast.forEach (line) -> run line, self.scope
+    ast.forEach (line) -> read line, self.scope
+
   return self.scope
 
 exports.run = ->
