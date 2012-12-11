@@ -1,7 +1,11 @@
 
-print load\ t.cr
-require t2.cr
+echo load\ t.cr
+init set-env init
 
-print ...try\ to\ use\ init
+set f1
+  fn ()
+    do
+      echo 1
+      f1
 
-init print one two
+f1

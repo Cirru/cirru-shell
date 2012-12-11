@@ -26,7 +26,12 @@ make_list = (list) ->
 
 init = require("./init").init
 
-parse = (name) -> make_list cirru_parse read_file name
+parse = (name) ->
+  parse_result = cirru_parse read_file name
+  all_lines = parse_result.all
+  ret = make_list parse_result
+  ret.all = parse_result.all
+  ret
 
 # functions about handling local environments
 read_file = (name) -> fs.readFileSync name, "utf8"
@@ -34,34 +39,43 @@ watch = (name, fn) -> fs.watchFile name, interval: 100, fn
 join = path.join
 dirname = path.dirname
 pwd = process.env.PWD
-print = (item) ->
+echo = (item) ->
   log item
-  print
+  echo
 concat = (arr1, arr2) -> arr1.concat arr2
 
 # store all modules, maintained by load_require
 all_libs = {}
 
 read = (exp, scope) ->
-  [head, body...] = exp
-  # log exp
+  try
+    [head, body...] = exp
+    # log exp
+    # log "---> head", head
 
-  if is_arr head then head = read head, scope
-  else if is_str head
-    if scope[head]? then head = scope[head]
-    else err "head #{head} not found"
+    if is_arr head then head = read head, scope
+    else if is_str head
+      if scope[head]? then head = scope[head]
+      else err "head #{head} not found"
 
-  ret = head
-  if body[0]?
-    arg = body.shift()
-    ret =
-      if is_func head then head arg
-      else if is_obj head then head[arg]
-      else err "strange head:", head
+    ret = head
     if body[0]?
-      ret = read (concat [ret], body), scope
-  # log "ret :", ret
-  return ret
+      arg = body.shift()
+      ret =
+        if is_func head then head arg, scope
+        else if is_obj head then head[arg]
+        else err "strange head: #{head}"
+      if body[0]?
+        sub_exp = [ret].concat body
+        sub_exp.n = exp.n
+        ret = read sub_exp, scope
+    else if is_func head
+      ret = head null, scope
+    # log "ret :", ret
+    return ret
+  catch one
+    log " ▸ #{exp.n}\t: #{scope.ast.all[exp.n-1]} \t ✘ #{one}"
+    err ""
 
 # a node refers to a file, folded as a tree
 load_node = (filename, parent) ->
@@ -83,8 +97,10 @@ load_node = (filename, parent) ->
 
   self.scope =
     filename: filename
-    print: print
+    echo: echo
     init: init
+    read: read
+    ast: ast
 
   # called by every file to maintain global libs
   self.scope.require = load_require = (name) ->
