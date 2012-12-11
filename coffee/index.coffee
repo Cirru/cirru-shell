@@ -1,7 +1,8 @@
 
+log = -> console.log.apply console, arguments
+
 fs = require "fs"
 path = require "path"
-log = console.log
 err = (info) -> throw new Error info
 cirru_parse = require("cirru-parser").parse
 delay = (fn) -> setTimeout fn, 100
@@ -50,7 +51,6 @@ all_libs = {}
 read = (exp, scope) ->
   try
     [head, body...] = exp
-    # log exp
     # log "---> head", head
 
     if is_arr head then head = read head, scope

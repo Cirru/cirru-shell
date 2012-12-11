@@ -2,11 +2,13 @@
 var all_libs, cirru_parse, concat, delay, dirname, echo, err, fs, init, is_arr, is_func, is_obj, is_str, join, keys, load_node, log, make_list, parse, path, pwd, read, read_file, watch,
   __slice = [].slice;
 
+log = function() {
+  return console.log.apply(console, arguments);
+};
+
 fs = require("fs");
 
 path = require("path");
-
-log = console.log;
 
 err = function(info) {
   throw new Error(info);

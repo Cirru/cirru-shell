@@ -5,8 +5,9 @@ is_num = (item) -> typeof item is 'number'
 is_fun = (item) -> typeof item is 'function'
 is_obj = (item) -> typeof item is 'object'
 gen = (item) -> JSON.stringify item, null, 2
-log = console.log
 err = (info) -> throw new Error info
+
+log = -> console.log.apply console, arguments
 
 spawn = (scope) ->
   child = {}
@@ -32,6 +33,8 @@ string = (item, scope) ->
   else if is_obj ret then JSON.stringify ret, null, 2
   else String ret
 
+raw = (item) -> item
+
 set = (key, scope) -> (value) ->
   # log "--> setting:", key, value
   scope[key] = {}
@@ -45,10 +48,19 @@ set = (key, scope) -> (value) ->
 get = (item, scope) ->
   if is_str item then scope[item]
   else if is_arr item then scope.read item, scope
+  else if if_func item then item
   else err "can't get item: #{item}"
 
-add = (item, scope) ->
-  item.map((key) -> get key, scope).reduce (x,y) -> x + y
+add = (item1, scope) -> (item2) ->
+  a = get item1, scope
+  b = get item2, scope
+  # log "adding:", a, b
+  a + b
+minus = (item1, scope) -> (item2) ->
+  a = get item1, scope
+  b = get item2, scope
+  # log "minus:", a, b
+  a - b
 
 comment = -> comment
 
@@ -58,23 +70,38 @@ set_env = (item, scope) ->
     scope[key] = value
 
 fn = (item1, scope) -> (item2) ->
-  # log "define fn:", item1, item2
-  child = spawn scope
+  # log "define fn:", item1
   if item1[0]?
-    ret = (arg) ->
-      key = item1.shift()
-      child[key] =
-        if is_str arg then scope[arg]
-        else if is_arr arg then scope.read arg, scope
-        else err "wrong arg #{arg} in fn"
-
-      if item1[0]? then ret
-      else get item2, child
-  else -> get item2, child
+    do ret = (scope, item1) ->
+      (arg, out_scope) ->
+        child = spawn out_scope
+        value = get arg, out_scope
+        key = item1[0]
+        child[key] = value
+        # log ":::", key, value, child, arg
+        if item1[1]? then ret child, item1[1..]
+        else
+          # log "doing function", child
+          get item2, child
+  else
+    child = spawn scope
+    get item2, child
 
 do_func = (item, scope) ->
   scope.read item, scope
   do_func
+
+if_func = (item1, scope) -> (item2) -> (item3) ->
+  if (get item1, scope) then get item2, scope
+  else get item3, scope
+
+smaller = (item1, scope) -> (item2) ->
+  a = get item1, scope
+  b = get item2, scope
+  # log "smaller:", a, b
+  a < b
+
+exit = -> process.exit()
 
 exports.init = {
   is_arr: is_arr
@@ -87,6 +114,7 @@ exports.init = {
   number
   string
   "+": add
+  "-": minus
   set
   get
   comment
@@ -94,4 +122,8 @@ exports.init = {
   "get-env": get_env
   fn: fn
   do: do_func
+  "<": smaller
+  if: if_func
+  raw
+  exit
 }
