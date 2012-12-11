@@ -74,7 +74,7 @@ fn = (item1, scope) -> (item2) ->
   if item1[0]?
     do ret = (scope, item1) ->
       (arg, out_scope) ->
-        child = spawn out_scope
+        child = spawn scope
         value = get arg, out_scope
         key = item1[0]
         child[key] = value

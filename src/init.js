@@ -139,7 +139,7 @@ fn = function(item1, scope) {
       return (ret = function(scope, item1) {
         return function(arg, out_scope) {
           var child, key, value;
-          child = spawn(out_scope);
+          child = spawn(scope);
           value = get(arg, out_scope);
           key = item1[0];
           child[key] = value;
