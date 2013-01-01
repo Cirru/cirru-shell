@@ -2,13 +2,14 @@
   "name": "cirru-cli",
   "version": "0.0.1",
   "description": "a command line tool of Cirru",
-  "main": "lib/parser.js",
+  "main": "bin/index.js",
   "scripts": {
     "test": "echo 'no test'"
   },
   "repository": "",
   "dependencies": {
-      "cirru-parser": "latest"
+      "libyaml": "latest",
+      "ws": "latest"
     },
   "keywords": [
     "cirru"

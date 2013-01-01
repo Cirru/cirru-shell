@@ -1,0 +1,30 @@
+---
+- - set
+  - a
+  - - number
+    - a
+- - set
+  - b
+  - - number
+    - two
+- - set
+  - c
+  - - number
+    - 3
+- - define
+  - - f
+    - a
+    - b
+  - - if
+    - - '>'
+      - a
+      - b
+    - - console
+      - log
+      - a
+    - - console
+      - log
+      - b
+- - print
+  - end
+...
