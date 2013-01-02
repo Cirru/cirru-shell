@@ -41,6 +41,7 @@ define (require, exports) ->
       div.className = "file"
       div.innerText = file
       div.onclick = ->
+        save.click()
         send "open", {file}
         last = q "#focus"
         if last? then last.id = ""

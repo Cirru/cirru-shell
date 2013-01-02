@@ -5,7 +5,6 @@ log = console.log
 fs = require "fs"
 d = __dirname
 code = "#{d}/../../code"
-libyaml = require "libyaml"
 
 ss.on "connection", (ws) ->
 
@@ -26,13 +25,19 @@ ss.on "connection", (ws) ->
       send "reload", {list}
 
   method.open = (data) ->
-    libyaml.readFile "#{code}/#{data.file}", (err, list) ->
+    fs.readFile "#{code}/#{data.file}", "utf8", (err, text) ->
       throw err if err?
-      log "open", list
-      send "open", {file: data.file, list: list[0]}
+      try
+        list = JSON.parse text
+        log "open", list
+        send "open", {file: data.file, list: list}
+      catch error
+        log "read error", error
+        send "open", {file: data.file, list: []}
 
   method.save = (data) ->
-    log data
     if data.file?
-      libyaml.writeFile "#{code}/#{data.file}", data.list, (err) ->
+      text = JSON.stringify data.list, null, 2
+      log "text", text
+      fs.writeFile "#{code}/#{data.file}", text, (err) ->
         log "writeFile", err

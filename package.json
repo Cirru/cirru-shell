@@ -8,7 +8,6 @@
   },
   "repository": "",
   "dependencies": {
-      "libyaml": "latest",
       "ws": "latest"
     },
   "keywords": [

@@ -54,6 +54,7 @@ define(function(require, exports) {
       div.innerText = file;
       div.onclick = function() {
         var last;
+        save.click();
         send("open", {
           file: file
         });
