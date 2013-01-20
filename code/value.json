@@ -1,14 +1,6 @@
 [
   [
     "echo",
-    "value file"
-  ],
-  [
-    "export",
-    [
-      "string",
-      "string"
-    ]
-  ],
-  "comment"
+    "value"
+  ]
 ]

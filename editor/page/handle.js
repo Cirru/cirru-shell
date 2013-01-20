@@ -14,7 +14,7 @@ define(function(require, exports) {
   };
   cirru = require("../../../cirru-editor-2/page/editor");
   cirru.editor(q("#editor"));
-  ws = new WebSocket("ws://192.168.1.19:2013");
+  ws = new WebSocket("ws://localhost:2013");
   method = {};
   send = function(type, data) {
     var json;
