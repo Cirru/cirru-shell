@@ -1,0 +1,2 @@
+
+shell = require '../coffee/shell'

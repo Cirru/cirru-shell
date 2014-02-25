@@ -1,0 +1,23 @@
+{
+  "name": "cirru-shell",
+  "version": "0.0.1",
+  "description": "A simpe based on Cirru Grammar",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Cirru/cirru-shell.git"
+  },
+  "keywords": [
+    "cirru",
+    "shell"
+  ],
+  "author": "jiyinyiyong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Cirru/cirru-shell/issues"
+  },
+  "homepage": "https://github.com/Cirru/cirru-shell"
+}
