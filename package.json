@@ -1,6 +1,6 @@
 {
   "name": "cirru-shell",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A simpe based on Cirru Grammar",
   "main": "index.js",
   "scripts": {
@@ -19,5 +19,11 @@
   "bugs": {
     "url": "https://github.com/Cirru/cirru-shell/issues"
   },
-  "homepage": "https://github.com/Cirru/cirru-shell"
+  "bin": {
+    "cirru-shell": "bin/cirru-shell"
+  },
+  "homepage": "https://github.com/Cirru/cirru-shell",
+  "dependencies": {
+    "cirru-parser": "~0.7.1"
+  }
 }

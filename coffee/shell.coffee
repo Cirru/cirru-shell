@@ -2,16 +2,16 @@
 util = require 'util'
 readline = require 'readline'
 
-candidates = ['acd', 'sdfsdf', 'akne', 'wave', 'make']
+evaluator = require './evaluator'
 
 completer = (line) ->
   matchLastWord = line.match(/[\w-:\/]+$/)
-  return [candidates, ''] unless matchLastWord?
+  return [evaluator.candidates, ''] unless matchLastWord?
   lastWord = matchLastWord[0]
   wordsBefore = line[...(-lastWord.length)]
   # console.log "(#{lastWord})"
   # console.log 'before:', wordsBefore
-  hits = candidates
+  hits = evaluator.candidates
   .filter (word) ->
     (word.indexOf lastWord) is 0
   if hits.length > 0
@@ -27,5 +27,6 @@ shell = readline.createInterface
 
 do repl = ->
   shell.question 'cirru> ', (anwser) ->
-    console.log anwser
+    resultString = evaluator.call null, anwser
+    console.log resultString
     repl()
