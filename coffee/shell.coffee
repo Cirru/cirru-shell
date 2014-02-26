@@ -1,8 +1,13 @@
 
 util = require 'util'
 readline = require 'readline'
+fs = require 'fs'
+{join} = require 'path'
+require 'shelljs/global'
 
 evaluator = require './evaluator'
+
+historyFile = join process.env.HOME, '.cirru_history'
 
 completer = (line) ->
   if line[line.length - 1] is '('
@@ -34,10 +39,18 @@ shell = readline.createInterface
   output: process.stdout
   completer: completer
 
+if fs.existsSync historyFile
+  (JSON.parse (cat historyFile)).forEach (command) ->
+    shell.history.push command
+else
+  '[]'.to historyFile
+
 shell.setPrompt 'cirru> '
 shell.prompt()
 
 shell.on 'line', (anwser) ->
+  # console.log (Object.keys shell)
+  # console.log (Object.keys shell.__proto__)
   try
     resultString = evaluator.call null, anwser
     util.print '=> '
@@ -46,3 +59,10 @@ shell.on 'line', (anwser) ->
     console.log error
   console.log ''
   shell.prompt()
+
+shell.on 'SIGINT', ->
+  process.exit()
+
+process.on 'exit', ->
+  # console.log 'history', shell.history, 'to', historyFile
+  (JSON.stringify shell.history, null, 2).to historyFile

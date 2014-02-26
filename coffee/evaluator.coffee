@@ -7,6 +7,8 @@ isExpression = (x) ->
   Array.isArray x
 isToken = (x) ->
   typeof x is 'string'
+isArray = (x) ->
+  Array.isArray x
 
 exports.candidates = []
 
@@ -69,7 +71,10 @@ registry =
     stringList = xs
     .map (item) -> read scope, item
     .map (x) -> stringify x
-    print stringList.join('\t')
+    console.log stringList.join('\t')
+
+  exit: ->
+    process.exit()
 
 do updateCandidate = ->
   exports.candidates = []
