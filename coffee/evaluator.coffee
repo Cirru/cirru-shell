@@ -29,11 +29,17 @@ call = (scope, expression) ->
   else
     throw new Error "(#{func}) not found in (#{expression})"
 
-read = (scope, name) ->
+readToken = (scope, name) ->
   if isToken name
     scope[name]
   else
     throw new Error "(#{name}) not found in (#{scope})"
+
+read = (scope, item) ->
+  if isToken item
+    readToken item
+  else
+    call scope, item
 
 prettify = (data) ->
   console.log 'prettify data'
@@ -44,11 +50,8 @@ registry =
   string: (xs...) ->
     xs.join(' ')
   array: (scope, xs...) ->
-    xs.map (item) ->
-      if isToken item
-        read context, item
-      else if isExpression item
-        call context, item
+    xs.map (item) -> read scope, item
+
   set: (scope, key, exp) ->
     unless (isToken key)
       throw new Error "(#{key}) is not a key in set"
@@ -59,10 +62,28 @@ registry =
   get: (scope, key) ->
     unless (isToken key)
       throw new Error "(#{key}) is not a key in get"
-    scope[key]
+    ret = scope[key]
+    ret
+
+  print: (scope, xs...) ->
+    stringList = xs
+    .map (item) -> read scope, item
+    .map (x) -> stringify x
+    print stringList.join('\t')
 
 do updateCandidate = ->
   exports.candidates = []
   exports.candidates = []
   .concat (Object.keys registry)
   .concat (Object.keys context)
+
+stringify = (x) ->
+  if typeof x is 'string'
+    JSON.stringify x
+  else if typeof x is 'number'
+    x.toString()
+  else if isArray x
+    stringList = x.map (item) -> stringify x
+    "[#{stringList.join ' '}]"
+  else
+    '==not implemented=='

@@ -5,6 +5,15 @@ readline = require 'readline'
 evaluator = require './evaluator'
 
 completer = (line) ->
+  if line[line.length - 1] is '('
+    # console.log shell.line, shell.cursor
+    if shell.line[shell.cursor] isnt ')'
+      setTimeout ->
+        shell._moveCursor -1
+      , 0
+      return [['()'], '(']
+    else
+      return []
   matchLastWord = line.match(/[\w-:\/]+$/)
   return [evaluator.candidates, ''] unless matchLastWord?
   lastWord = matchLastWord[0]
@@ -18,15 +27,22 @@ completer = (line) ->
     # console.log [hits, line]
     [hits, lastWord]
   else
-    [[], null]
+    []
 
 shell = readline.createInterface
   input: process.stdin
   output: process.stdout
   completer: completer
 
-do repl = ->
-  shell.question 'cirru> ', (anwser) ->
+shell.setPrompt 'cirru> '
+shell.prompt()
+
+shell.on 'line', (anwser) ->
+  try
     resultString = evaluator.call null, anwser
+    util.print '=> '
     console.log resultString
-    repl()
+  catch error
+    console.log error
+  console.log ''
+  shell.prompt()

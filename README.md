@@ -14,3 +14,7 @@ Currently it broken.
 cirru> string 1
 [object Object] 1
 ```
+
+### Tab completion
+
+available for functions, values and parentheses.
