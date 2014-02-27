@@ -1,5 +1,6 @@
 
 parse = (require 'cirru-parser').parseShort
+require 'shelljs/global'
 
 context = {}
 
@@ -75,6 +76,25 @@ registry =
 
   exit: ->
     process.exit()
+
+  scope: (scope, xs...) ->
+    key = xs[0]
+    value = read x[1]
+    scope[name] = value
+
+  rm: (scope, xs...) ->
+    rm xs...
+
+  touch: (scope, xs...) ->
+    name = xs[0]
+    ''.to name
+    name
+
+  ls: (scope, xs...) ->
+    if xs[0]?
+      ls xs[0]
+    else
+      ls()
 
 do updateCandidate = ->
   exports.candidates = []
