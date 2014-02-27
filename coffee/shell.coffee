@@ -9,10 +9,19 @@ evaluator = require './evaluator'
 
 historyFile = join process.env.HOME, '.cirru_history'
 
+count = (piece, char) ->
+  n = 0
+  n += 1 for item in piece when item is char
+  n
+
 completer = (line) ->
   if line[line.length - 1] is '('
+    leftOpen = count line, '('
+    leftClose = count line, ')'
+    rightOpen = count shell.line[shell.cursor..], '('
+    rightClose = count shell.line[shell.cursor..], ')'
     # console.log shell.line, shell.cursor
-    if shell.line[shell.cursor] isnt ')'
+    if (leftOpen - leftClose) > (rightClose - rightOpen)
       setTimeout ->
         shell._moveCursor -1
       , 0
