@@ -1,6 +1,6 @@
 {
   "name": "cirru-shell",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Cirru's Shell for fun",
   "main": "index.js",
   "scripts": {

@@ -24,11 +24,6 @@ caret =
       throw new Error 'no parent context'
     @context = @stack.pop()
 
-do updateCandidate = ->
-  exports.candidates = []
-  .concat (Object.keys caret.methods)
-  .map (x) -> x + ' '
-
 exports.call = (code) ->
   ast = (parse code)[0]
   evaluate caret.context, ast
@@ -130,3 +125,9 @@ caret.methods =
     for exp in xs[1..]
       sum -= read scope, exp
     sum
+
+do updateCandidate = ->
+  exports.candidates = []
+  .concat (Object.keys caret.methods)
+  .concat (Object.keys caret.context)
+  .map (x) -> x + ' '

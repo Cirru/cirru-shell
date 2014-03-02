@@ -1,10 +1,6 @@
 
-Shell for Cirru scripts
------
-
-Just a simple demo showing how it works.
-
-Currently it broken.
+Simple demo of Cirru Shell
+------
 
 ### Usage
 
@@ -12,6 +8,10 @@ Currently it broken.
 ➤➤ npm install -g cirru-shell
 ➤➤ cirru-shell
 ```
+
+Tab completion is supported, try it.
+
+Notice that values and mathods are not store in the same table.
 
 A demo of running Cirru Shell:
 
