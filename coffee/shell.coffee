@@ -22,12 +22,9 @@ completer = (line) ->
     rightClose = count shell.line[shell.cursor..], ')'
     # console.log shell.line, shell.cursor
     if (leftOpen - leftClose) > (rightClose - rightOpen)
-      setTimeout ->
-        shell._moveCursor -1
-      , 0
+      setTimeout -> shell._moveCursor -1
       return [['()'], '(']
-    else
-      return []
+
   matchLastWord = line.match(/[\w-:\/]+$/)
   return [evaluator.candidates, ''] unless matchLastWord?
   lastWord = matchLastWord[0]
@@ -60,17 +57,13 @@ shell.prompt()
 shell.on 'line', (anwser) ->
   # console.log (Object.keys shell)
   # console.log (Object.keys shell.__proto__)
-  try
-    resultString = evaluator.call null, anwser
-    util.print '=> '
-    console.log resultString
-  catch error
-    console.log error
+  resultString = evaluator.call anwser
+  util.print '=> '
+  console.log resultString
   console.log ''
   shell.prompt()
 
-shell.on 'SIGINT', ->
-  process.exit()
+shell.on 'SIGINT', process.exit
 
 process.on 'exit', ->
   # console.log 'history', shell.history, 'to', historyFile

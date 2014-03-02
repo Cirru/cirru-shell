@@ -1,8 +1,7 @@
 
 parse = (require 'cirru-parser').parseShort
 require 'shelljs/global'
-
-context = {}
+renderData = require('cirru-json').generate
 
 isExpression = (x) ->
   Array.isArray x
@@ -11,104 +10,123 @@ isToken = (x) ->
 isArray = (x) ->
   Array.isArray x
 
-exports.candidates = []
+caret =
+  stack: []
+  context: {}
+  methods: {}
+  forward: (x) ->
+    unless typeof x is 'object'
+      throw new Error "(#{x}) can not be a new context"
+    @stack.push @context
+    @context = x
+  back: ->
+    if @stack.length is 0
+      throw new Error 'no parent context'
+    @context = @stack.pop()
 
-exports.call = (scope, code) ->
-  scope or= context
+do updateCandidate = ->
+  exports.candidates = []
+  .concat (Object.keys caret.methods)
+  .map (x) -> x + ' '
+
+exports.call = (code) ->
   ast = (parse code)[0]
-  call scope, ast
+  evaluate caret.context, ast
 
-call = (scope, expression) ->
-  func = expression[0]
-  args = expression[1..]
-  setTimeout ->
-    updateCandidate()
-  , 0
+evaluate = (scope, exp) ->
+  setTimeout -> updateCandidate()
+  func = exp[0]
+  args = exp[1..]
 
   if not func?
-    throw new Error "(#{expression}) not found"
-  else if registry[func]?
-    registry[func] context, args...
+    throw new Error "(#{exp}) not found"
+  else if caret.methods[func]?
+    caret.methods[func] scope, args...
   else
-    throw new Error "(#{func}) not found in (#{expression})"
-
-readToken = (scope, name) ->
-  if isToken name
-    scope[name]
-  else
-    throw new Error "(#{name}) not found in (#{scope})"
+    throw new Error "(#{func}) not found in (#{exp})"
 
 read = (scope, item) ->
   if isToken item
-    readToken item
+    if item.match /^-?\d+(\.\d+)?$/
+      Number item
+    else
+      scope[item]
   else
-    call scope, item
+    evaluate scope, item
 
-prettify = (data) ->
-  console.log 'prettify data'
-
-registry =
+caret.methods =
   number: (scope, x) ->
     Number x
-  string: (xs...) ->
+  string: (scope, xs...) ->
     xs.join(' ')
   array: (scope, xs...) ->
-    xs.map (item) -> read scope, item
+    xs.map (x) -> read scope, x
+
+  map: (scope, xs...) ->
+    ret = {}
+    xs.forEach (pair) ->
+      ret[pair[0]] = read scope, pair[1]
+    ret
 
   set: (scope, key, exp) ->
     unless (isToken key)
       throw new Error "(#{key}) is not a key in set"
-    value = call scope, exp
-    scope[key] = value
-    value
+    scope[key] = read scope, exp
 
   get: (scope, key) ->
     unless (isToken key)
       throw new Error "(#{key}) is not a key in get"
-    ret = scope[key]
-    ret
+    scope[key]
 
   print: (scope, xs...) ->
-    stringList = xs
-    .map (item) -> read scope, item
-    .map (x) -> stringify x
-    console.log stringList.join('\t')
+    xs
+    .map (x) -> read scope, x
+    .map renderData
+    .join '\t'
 
   exit: ->
     process.exit()
-
-  scope: (scope, xs...) ->
-    key = xs[0]
-    value = read x[1]
-    scope[name] = value
 
   rm: (scope, xs...) ->
     rm xs...
 
   touch: (scope, xs...) ->
-    name = xs[0]
-    ''.to name
-    name
+    for name in xs
+      ''.to name
 
-  ls: (scope, xs...) ->
-    if xs[0]?
-      ls xs[0]
-    else
-      ls()
+  ls: (scope, name) ->
+    ls name
 
-do updateCandidate = ->
-  exports.candidates = []
-  exports.candidates = []
-  .concat (Object.keys registry)
-  .concat (Object.keys context)
+  display: (scope) ->
+    Object.keys scope
 
-stringify = (x) ->
-  if typeof x is 'string'
-    JSON.stringify x
-  else if typeof x is 'number'
-    x.toString()
-  else if isArray x
-    stringList = x.map (item) -> stringify x
-    "[#{stringList.join ' '}]"
-  else
-    '==not implemented=='
+  forward: (scope, name) ->
+    caret.forward scope[name]
+
+  back: ->
+    caret.back()
+
+  define: (scope, template, exps...) ->
+    caret.methods[template[0]] = (outer, xs...) ->
+      child = {}
+      for parameter, index in template[1..]
+        child[parameter] = read outer, xs[index]
+      ret = undefined
+      exps.forEach (exp) ->
+        ret = read child, exp
+      ret
+
+  level: ->
+    caret.stack.length
+
+  '+': (scope, xs...) ->
+    sum = 0
+    for exp in xs
+      sum += read scope, exp
+    sum
+  
+  '-': (scope, xs...) ->
+    sum = read scope, xs[0]
+    for exp in xs[1..]
+      sum -= read scope, exp
+    sum
