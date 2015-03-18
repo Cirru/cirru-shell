@@ -46,8 +46,9 @@ shell = readline.createInterface
   completer: completer
 
 if fs.existsSync historyFile
-  (JSON.parse (cat historyFile)).forEach (command) ->
-    shell.history.push command
+  try
+    (JSON.parse (cat historyFile)).forEach (command) ->
+      shell.history.push command
 else
   '[]'.to historyFile
 

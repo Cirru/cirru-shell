@@ -1,6 +1,6 @@
 {
   "name": "cirru-shell",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Cirru's Shell for fun",
   "main": "index.js",
   "scripts": {
@@ -24,8 +24,8 @@
   },
   "homepage": "https://github.com/Cirru/cirru-shell",
   "dependencies": {
-    "cirru-parser": "*",
-    "cirru-json": "*",
+    "cirru-json": "0.0.10",
+    "cirru-parser": "0.10.x",
     "shelljs": "~0.2.6"
   }
 }

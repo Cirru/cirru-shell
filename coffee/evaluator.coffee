@@ -1,5 +1,5 @@
 
-parse = (require 'cirru-parser').parseShort
+parse = (require 'cirru-parser').pare
 require 'shelljs/global'
 renderData = require('cirru-json').generate
 
@@ -119,7 +119,7 @@ caret.methods =
     for exp in xs
       sum += read scope, exp
     sum
-  
+
   '-': (scope, xs...) ->
     sum = read scope, xs[0]
     for exp in xs[1..]
